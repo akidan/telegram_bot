@@ -21,31 +21,31 @@ def qq(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="小波扫描二维码")
 
 def xb(bot, update):
-	logging.info(str(update.message.chat_id) + " send /xb")
+    logging.info(str(update.message.chat_id) + " send /xb")
     os.system('kill -9 `ps ax | grep [x]iaobo | sed \'s/^\s*//\' | cut -d " " -f 1` && sleep 5')
     os.system('tmux new-window -n xiaobo "cd /home/zhiyue.wang/workspaces/xiaoboQQBot/src && python xiaobo.py"')
     bot.send_message(chat_id=update.message.chat_id, text="小波已重启！")
 
 def cc(bot, update):
-	logging.info(str(update.message.chat_id) + " send /cc")
+    logging.info(str(update.message.chat_id) + " send /cc")
     os.system('rm /home/zhiyue.wang/workspaces/xiaoboQQBot/src/cookie/*')
     os.system('rm /home/zhiyue.wang/workspaces/xiaoboQQBot/src/smart_qq_bot/__pycache__/*')
     os.system('rm /home/zhiyue.wang/workspaces/xiaoboQQBot/src/smart_qq_plugins/__pycache__/*')
     bot.send_message(chat_id=update.message.chat_id, text="小波的缓存已清除！")
 
 def ss(bot, update):
-	logging.info(str(update.message.chat_id) + " send /ss")
+    logging.info(str(update.message.chat_id) + " send /ss")
     os.system('sudo kill -9 `ps ax | grep [s]sserver | sed \'s/^\s*//\' | cut -d " " -f 1` && sleep 5')
     os.system('tmux new-window -n shadowsocks "sudo -i ssserver -c /etc/shadowsocks.json"')
     bot.send_message(chat_id=update.message.chat_id, text="已经开始科学冲浪！\n107.167.188.187:7711\naes-256-cfb")
 
 def ks(bot, update):
-	logging.info(str(update.message.chat_id) + " send /killss")
+    logging.info(str(update.message.chat_id) + " send /killss")
     os.system('sudo kill -9 `ps ax | grep [s]sserver | sed \'s/^\s*//\' | cut -d " " -f 1`')
     bot.send_message(chat_id=update.message.chat_id, text="停止科学冲浪！")
 
 def show_help(bot, update):
-	logging.info(str(update.message.chat_id) + " " + update.message.text)
+    logging.info(str(update.message.chat_id) + " " + update.message.text)
     bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/qq 发送QQ号小波的二维码\nXB 重启小波\n[慎用]CC 清除小波的缓存\nSS 科学冲浪\nKILLSS 普通冲浪")
 
 qq_handler = CommandHandler('qq', qq)
