@@ -18,7 +18,9 @@ def qq(bot, update):
         xiaobo_qr.close()
     except:
         logging.warning(str(update.message.chat_id) + " xiaobo_url does not exist")
-    bot.send_message(chat_id=update.message.chat_id, text="小波扫描二维码")
+        bot.send_message(chat_id=update.message.chat_id, text="没有二维码文件，请先/xb")
+    else:
+        bot.send_message(chat_id=update.message.chat_id, text="小波扫描二维码")
 
 def xb(bot, update):
     logging.info(str(update.message.chat_id) + " send /xb")
@@ -46,7 +48,7 @@ def ks(bot, update):
 
 def show_help(bot, update):
     logging.info(str(update.message.chat_id) + " " + update.message.text)
-    bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/qq 发送QQ号小波的二维码\nXB 重启小波\n[慎用]CC 清除小波的缓存\nSS 科学冲浪\nKILLSS 普通冲浪")
+    bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/qq 发送QQ号小波的二维码\n/xb 重启小波\n[慎用]/cc 清除小波的缓存\n/ss 科学冲浪\n/killss 普通冲浪")
 
 qq_handler = CommandHandler('qq', qq)
 xb_handler = CommandHandler('xb', xb)
