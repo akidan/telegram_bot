@@ -48,7 +48,7 @@ def ks(bot, update):
 
 def show_help(bot, update):
     logging.info(str(update.message.chat_id) + " " + update.message.text)
-    bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/qq 发送QQ号小波的二维码\n/xb 重启小波\n[慎用]/cc 清除小波的缓存\n/ss 科学冲浪\n/killss 普通冲浪")
+    bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/qq 发送QQ号小波的二维码\n/xb 重启小波\n[慎用]cc 清除小波的缓存\n/ss 科学冲浪\n/killss 普通冲浪")
 
 qq_handler = CommandHandler('qq', qq)
 xb_handler = CommandHandler('xb', xb)
