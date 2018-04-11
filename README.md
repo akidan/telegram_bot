@@ -1,3 +1,3 @@
 # telegram_bot
 
-A bot for telegram and QQ
+A telegram bot that can call QQ bot and the VPN service.
