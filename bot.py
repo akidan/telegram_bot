@@ -96,8 +96,11 @@ def tr(bot, update, args):
             except:
                 bot.send_message(chat_id=update.message.chat_id, text="参数错误，无法更改参数阈值！")
             else:
-                price_threshold = float(args[0])
-                bot.send_message(chat_id=update.message.chat_id, text="已经更改通知阈值！")
+                if float(args[0]) >= 0:
+                    price_threshold = float(args[0])
+                    bot.send_message(chat_id=update.message.chat_id, text="已经更改通知阈值！")
+                else:
+                    bot.send_message(chat_id=update.message.chat_id, text="阈值参数不能为负数！")
 
 def show_help(bot, update):
     logging.info(str(update.message.chat_id) + " " + update.message.text)
