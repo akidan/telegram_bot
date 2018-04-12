@@ -43,7 +43,7 @@ def xb(bot, update):
         bot.send_message(chat_id=update.message.chat_id, text="小波已重启！")
 
 def qr(bot, update):
-    logging.info(str(update.message.chat_id) + " send /qq")
+    logging.info(str(update.message.chat_id) + " send /qr")
     global userid
     if str(userid) != str(update.message.chat_id):
         bot.send_message(chat_id=update.message.chat_id, text="请先使用/sudo取得系统权限！")
