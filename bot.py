@@ -9,6 +9,7 @@ userid =json_dict['telegram_bot']['userid']
 sudopw =json_dict['telegram_bot']['sudopw']
 
 xiaobo_url="/tmp/mojo_webqq_qrcode_default.png"
+yue_url="/home/zhiyue.wang/src/qr_yue.jpg"
 
 price_threshold = 1.0
 
@@ -40,6 +41,25 @@ def xb(bot, update):
         os.system('kill -9 `ps ax | grep [x]iaobo | sed \'s/^\s*//\' | cut -d " " -f 1` && sleep 5')
         os.system('tmux new-window -n xiaobo "cd /home/zhiyue.wang/workspaces/xiaoboQQBot/src && python xiaobo.py"')
         bot.send_message(chat_id=update.message.chat_id, text="小波已重启！")
+
+def qr(bot, update):
+    logging.info(str(update.message.chat_id) + " send /qq")
+    global userid
+    if str(userid) != str(update.message.chat_id):
+        bot.send_message(chat_id=update.message.chat_id, text="请先使用/sudo取得系统权限！")
+    else:
+        try:
+            os.system('rm ' + yue_url)
+            os.system('tmux new-window -n yue "python /home/zhiyue.wang/workspaces/wechat_yue/yue.py remote"')
+            sleep(3)
+            yue_qr = open(yue_url, 'rb')
+            bot.send_photo(chat_id=update.message.chat_id, photo=yue_qr)
+            yue_qr.close()
+        except:
+            logging.warning(str(update.message.chat_id) + " yue_url does not exist")
+            bot.send_message(chat_id=update.message.chat_id, text="没有二维码文件，请重新运行/qr")
+        else:
+            bot.send_message(chat_id=update.message.chat_id, text="微信Yue扫描二维码")
 
 def cc(bot, update):
     logging.info(str(update.message.chat_id) + " send /cc")
@@ -73,7 +93,7 @@ def ks(bot, update):
 
 def sudo(bot, update, args):
     logging.info(str(update.message.chat_id) + " send /sudo " + ' '.join(args))
-    global userid, sudopw
+    global userid
     if len(args) > 0 and args[0] == sudopw:
         bot.send_message(chat_id=userid, text="用户"+str(update.message.chat_id)+"已经获取系统通知权限！")
         userid = update.message.chat_id
@@ -104,7 +124,7 @@ def tr(bot, update, args):
 
 def show_help(bot, update):
     logging.info(str(update.message.chat_id) + " " + update.message.text)
-    bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/qq 发送QQ号小波的二维码\n/xb 重启小波\n[慎用]cc 清除小波的缓存\n/ss 科学冲浪\n/killss 普通冲浪\n/sudo 切换系统提示通知对象\n/tr 查询或修改通知阈值")
+    bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/qq - 发送小波的二维码\n/xb - 重启小波\n/qq - 发送Yue的二维码\n/ss - 科学冲浪\n/killss - 普通冲浪\n/sudo - 切换系统提示通知对象\n/tr - 查询或修改通知阈值\ncc - [慎用]清除小波的缓存")
 
 #virtual currency bot
 class myThread1(threading.Thread):
@@ -170,6 +190,7 @@ class myThread2(threading.Thread):
 if __name__ == '__main__':
     qq_handler = CommandHandler('qq', qq)
     xb_handler = CommandHandler('xb', xb)
+    qr_handler = CommandHandler('qr', qr)
     cc_handler = CommandHandler('cc', cc)
     ss_handler = CommandHandler('ss', ss)
     ks_handler = CommandHandler('killss', ks)
@@ -179,6 +200,7 @@ if __name__ == '__main__':
 
     dispatcher.add_handler(qq_handler)
     dispatcher.add_handler(xb_handler)
+    dispatcher.add_handler(qr_handler)
     dispatcher.add_handler(cc_handler)
     dispatcher.add_handler(ss_handler)
     dispatcher.add_handler(ks_handler)
