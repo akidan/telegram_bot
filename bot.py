@@ -190,7 +190,7 @@ class myThread2(threading.Thread):
 if __name__ == '__main__':
     qq_handler = CommandHandler('qq', qq)
     xb_handler = CommandHandler('xb', xb)
-    qr_handler = CommandHandler('qr', qr)
+    #qr_handler = CommandHandler('qr', qr)
     cc_handler = CommandHandler('cc', cc)
     ss_handler = CommandHandler('ss', ss)
     ks_handler = CommandHandler('killss', ks)
@@ -200,7 +200,7 @@ if __name__ == '__main__':
 
     dispatcher.add_handler(qq_handler)
     dispatcher.add_handler(xb_handler)
-    dispatcher.add_handler(qr_handler)
+    #dispatcher.add_handler(qr_handler)
     dispatcher.add_handler(cc_handler)
     dispatcher.add_handler(ss_handler)
     dispatcher.add_handler(ks_handler)
