@@ -124,7 +124,7 @@ def tr(bot, update, args):
 
 def show_help(bot, update):
     logging.info(str(update.message.chat_id) + " " + update.message.text)
-    bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/qq - 发送小波的二维码\n/xb - 重启小波\n/qq - 发送Yue的二维码\n/ss - 科学冲浪\n/killss - 普通冲浪\n/sudo - 切换系统提示通知对象\n/tr - 查询或修改通知阈值\ncc - [慎用]清除小波的缓存")
+    bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/qq - 发送小波的二维码\n/xb - 重启小波\n/ss - 科学冲浪\n/killss - 普通冲浪\n/sudo - 切换系统提示通知对象\n/tr - 查询或修改通知阈值\ncc - [慎用]清除小波的缓存\nqq - [禁用]发送Yue的二维码")
 
 #virtual currency bot
 class myThread1(threading.Thread):
