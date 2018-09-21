@@ -1,4 +1,4 @@
-import sys, os, time, json, logging, telegram, threading, datetime, requests
+import sys, os, time, json, logging, telegram, threading, datetime, requests, redis
 from time import sleep
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
@@ -10,6 +10,7 @@ userid =json_dict['telegram_bot']['userid']
 sudopw =json_dict['telegram_bot']['sudopw']
 
 xiaobo_url="/tmp/mojo_webqq_qrcode_default.png"
+myredis = redis.Redis(host='localhost', port=6379, db=5)
 
 updater = Updater(token=mytoken)
 dispatcher = updater.dispatcher
@@ -23,14 +24,27 @@ def user_auth(telegram_id):
     else:
         return False
 
+def chk_xiaobo_sts_by_redis():
+    global myredis
+    return myredis.get('XB_STS')
+
 def xb(bot, update):
+    global myredis
     logging.info(str(update.message.chat_id) + " send /xb")
     if user_auth(update.message.chat_id):
+        myredis.set('XB_STS',False)
         os.system('rm '+xiaobo_url)
         os.system('kill -9 `ps ax | grep [x]iaobo | sed \'s/^\s*//\' | cut -d " " -f 1` && sleep 5')
         os.system('tmux new-window -n xiaobo "cd ~/workspaces/xiaoboQQBot/src && python xiaobo.py"')
-        bot.send_message(chat_id=update.message.chat_id, text="小波已重启！")
-        os.system('sleep 5')
+        bot.send_message(chat_id=update.message.chat_id, text="小波已重启！正在准备二维码...")
+        sleep(5)
+        try:
+            xiaobo_qr = open(xiaobo_url, 'rb')
+            bot.send_photo(chat_id=update.message.chat_id, photo=xiaobo_qr)
+            xiaobo_qr.close()
+        except:
+            logging.warning(str(update.message.chat_id) + " xiaobo_url does not exist")
+            bot.send_message(chat_id=update.message.chat_id, text="没有二维码文件，请用/qr手动获取")
 
 def qr(bot, update):
     logging.info(str(update.message.chat_id) + " send /qr")
@@ -41,24 +55,20 @@ def qr(bot, update):
             xiaobo_qr.close()
         except:
             logging.warning(str(update.message.chat_id) + " xiaobo_url does not exist")
-            bot.send_message(chat_id=update.message.chat_id, text="没有二维码文件，请先/xb")
+            bot.send_message(chat_id=update.message.chat_id, text="没有二维码文件，请先/xb，如果仍然无法开启则使用cc")
         else:
             bot.send_message(chat_id=update.message.chat_id, text="小波扫描二维码")
     else:
         bot.send_message(chat_id=update.message.chat_id, text=ERR_NO_PERMISSION)
 
 def sts(bot, update):
+    global myredis
     logging.info(str(update.message.chat_id) + " send /sts")
-    if False:#user_auth(update.message.chat_id):
-        try:
-            xiaobo_qr = open(xiaobo_url, 'rb')
-            bot.send_photo(chat_id=update.message.chat_id, photo=xiaobo_qr)
-            xiaobo_qr.close()
-        except:
-            logging.warning(str(update.message.chat_id) + " xiaobo_url does not exist")
-            bot.send_message(chat_id=update.message.chat_id, text="没有二维码文件，请先/xb")
+    if user_auth(update.message.chat_id):
+        if chk_xiaobo_sts_by_redis() is True:
+            bot.send_message(chat_id=update.message.chat_id, text='小波('+ myredis.get('XB_LAST_LOGIN_ID')+')当前在线。\n在线开始时间：'+myredis.get('XB_LAST_LOGIN_TIME'))
         else:
-            bot.send_message(chat_id=update.message.chat_id, text="小波扫描二维码")
+            bot.send_message(chat_id=update.message.chat_id, text='小波当前不在线')
     else:
         bot.send_message(chat_id=update.message.chat_id, text=ERR_NO_PERMISSION)
 
@@ -85,7 +95,7 @@ def su(bot, update, args):
 
 def show_help(bot, update):
     logging.info(str(update.message.chat_id) + " " + update.message.text)
-    bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/xb - 重启小波\n/qr - 发送小波的二维码\n/su - 管理员指令\ncc - [慎用]清除小波的缓存")
+    bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/xb - 重启小波\n/qr - 发送小波的二维码\n/sts - 查看当前小波运行状态\n/su - 管理员指令\ncc - [慎用]清除小波的缓存")
 
 #qq online monitoring bot
 class myThread1(threading.Thread):
@@ -93,12 +103,14 @@ class myThread1(threading.Thread):
         super(myThread1, self).__init__()
 
     def run(self):
+        global myredis
         alert = False
         logout = 0
         login  = 0
         while True:
             pic_exist = os.path.exists(xiaobo_url)
             if pic_exist == True and alert == False:
+                myredis.set('XB_STS', False)
                 logout = datetime.datetime.now()
                 online_status='小波已掉线！\n掉线时间: '+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
                 logging.info(online_status)
@@ -106,7 +118,7 @@ class myThread1(threading.Thread):
                     bot.send_message(chat_id=uid, text=online_status)
                 bot.send_message(chat_id=rootid, text=online_status)
                 alert = True
-            elif pic_exist == False and alert == True:
+            elif pic_exist == False and alert == True and chk_xiaobo_sts_by_redis() == True:
                 login = datetime.datetime.now()
                 logout_duration = (login - logout).seconds
                 logout_sec = str(logout_duration % 60)
