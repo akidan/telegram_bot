@@ -24,6 +24,13 @@ def user_auth(telegram_id):
     else:
         return False
 
+def chk_xiaobo_sts_by_ps():
+    global myredis
+    if int(subprocess.check_output(['ps ax | grep [x]iaobo | sed \'s/^\s*//\' | cut -d " " -f 1 | wc -l'])) > 0:
+        return True
+    else:
+        return False
+
 def chk_xiaobo_sts_by_redis():
     global myredis
     if myredis.get('XB_STS').decode('utf-8') == 'True':
@@ -116,7 +123,7 @@ class myThread1(threading.Thread):
         login  = 0
         while True:
             pic_exist = os.path.exists(xiaobo_url)
-            if pic_exist == True and alert == False:
+            if pic_exist == True and alert == False or chk_xiaobo_sts_by_ps() == False and chk_xiaobo_sts_by_redis == True:
                 myredis.set('XB_STS', False)
                 logout = datetime.datetime.now()
                 online_status='小波已掉线！\n掉线时间: '+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
