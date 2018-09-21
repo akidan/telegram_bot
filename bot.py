@@ -26,7 +26,7 @@ def user_auth(telegram_id):
 
 def chk_xiaobo_sts_by_redis():
     global myredis
-    if myredis.get('XB_STS').decode('utf-8') is 'True':
+    if myredis.get('XB_STS').decode('utf-8') == 'True':
         return True
     else:
         return False
@@ -45,6 +45,7 @@ def xb(bot, update):
             xiaobo_qr = open(xiaobo_url, 'rb')
             bot.send_photo(chat_id=update.message.chat_id, photo=xiaobo_qr)
             xiaobo_qr.close()
+            myredis.set('XB_LAST_LOGIN_TIME', time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         except:
             if chk_xiaobo_sts_by_redis() is True:
                 bot.send_message(chat_id=update.message.chat_id, text='小波('+ myredis.get('XB_LAST_LOGIN_ID').decode('utf-8')+')已自动登录。\n在线开始时间：'+myredis.get('XB_LAST_LOGIN_TIME').decode('utf-8'))
