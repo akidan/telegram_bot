@@ -26,7 +26,10 @@ def user_auth(telegram_id):
 
 def chk_xiaobo_sts_by_redis():
     global myredis
-    return myredis.get('XB_STS')
+    if myredis.get('XB_STS').decode('utf-8') is 'True':
+        return True
+    else:
+        return False
 
 def xb(bot, update):
     global myredis
@@ -43,8 +46,11 @@ def xb(bot, update):
             bot.send_photo(chat_id=update.message.chat_id, photo=xiaobo_qr)
             xiaobo_qr.close()
         except:
-            logging.warning(str(update.message.chat_id) + " xiaobo_url does not exist")
-            bot.send_message(chat_id=update.message.chat_id, text="没有二维码文件，请用/qr手动获取")
+            if chk_xiaobo_sts_by_redis() is True:
+                bot.send_message(chat_id=update.message.chat_id, text='小波('+ myredis.get('XB_LAST_LOGIN_ID').decode('utf-8')+')已自动登录。\n在线开始时间：'+myredis.get('XB_LAST_LOGIN_TIME').decode('utf-8'))
+            else:
+                logging.warning(str(update.message.chat_id) + " xiaobo_url does not exist")
+                bot.send_message(chat_id=update.message.chat_id, text="没有二维码文件，请用/qr手动获取")
 
 def qr(bot, update):
     logging.info(str(update.message.chat_id) + " send /qr")
@@ -66,7 +72,7 @@ def sts(bot, update):
     logging.info(str(update.message.chat_id) + " send /sts")
     if user_auth(update.message.chat_id):
         if chk_xiaobo_sts_by_redis() is True:
-            bot.send_message(chat_id=update.message.chat_id, text='小波('+ myredis.get('XB_LAST_LOGIN_ID')+')当前在线。\n在线开始时间：'+myredis.get('XB_LAST_LOGIN_TIME'))
+            bot.send_message(chat_id=update.message.chat_id, text='小波('+ myredis.get('XB_LAST_LOGIN_ID').decode('utf-8')+')当前在线。\n在线开始时间：'+myredis.get('XB_LAST_LOGIN_TIME').decode('utf-8'))
         else:
             bot.send_message(chat_id=update.message.chat_id, text='小波当前不在线')
     else:
