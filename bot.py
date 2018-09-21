@@ -26,7 +26,7 @@ def user_auth(telegram_id):
 
 def chk_xiaobo_sts_by_ps():
     global myredis
-    if int(subprocess.check_output(['ps ax | grep [x]iaobo | sed \'s/^\s*//\' | cut -d " " -f 1 | wc -l'])) > 0:
+    if int(subprocess.check_output(['ps ax | grep [x]iaobo | sed \'s/^\s*//\' | cut -d " " -f 1 | wc -l'],shell=True)) > 0:
         return True
     else:
         return False
