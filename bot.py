@@ -29,6 +29,7 @@ def chk_xiaobo_sts_by_ps():
     if int(subprocess.check_output(['ps ax | grep [x]iaobo | sed \'s/^\s*//\' | cut -d " " -f 1 | wc -l'],shell=True)) > 0:
         return True
     else:
+        myredis.set('XB_STS', False)
         return False
 
 def chk_xiaobo_sts_by_redis():
@@ -38,11 +39,16 @@ def chk_xiaobo_sts_by_redis():
     else:
         return False
 
+def chk_xiaobo_sts():
+    if chk_xiaobo_sts_by_ps() == True and chk_xiaobo_sts_by_redis() == True:
+        return True
+    else:
+        return False
+
 def xb(bot, update):
     global myredis
     logging.info(str(update.message.chat_id) + " send /xb")
     if user_auth(update.message.chat_id):
-        myredis.set('XB_STS',False)
         os.system('rm '+xiaobo_url)
         os.system('kill -9 `ps ax | grep [x]iaobo | sed \'s/^\s*//\' | cut -d " " -f 1` && sleep 5')
         os.system('tmux new-window -n xiaobo "cd ~/workspaces/xiaoboQQBot/src && python xiaobo.py"')
@@ -52,9 +58,8 @@ def xb(bot, update):
             xiaobo_qr = open(xiaobo_url, 'rb')
             bot.send_photo(chat_id=update.message.chat_id, photo=xiaobo_qr)
             xiaobo_qr.close()
-            myredis.set('XB_LAST_LOGIN_TIME', time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         except:
-            if chk_xiaobo_sts_by_redis() is True:
+            if chk_xiaobo_sts() == True:
                 bot.send_message(chat_id=update.message.chat_id, text='小波('+ myredis.get('XB_LAST_LOGIN_ID').decode('utf-8')+')已自动登录。\n在线开始时间：'+myredis.get('XB_LAST_LOGIN_TIME').decode('utf-8'))
             else:
                 logging.warning(str(update.message.chat_id) + " xiaobo_url does not exist")
@@ -79,10 +84,12 @@ def sts(bot, update):
     global myredis
     logging.info(str(update.message.chat_id) + " send /sts")
     if user_auth(update.message.chat_id):
-        if chk_xiaobo_sts_by_redis() is True:
+        if chk_xiaobo_sts() == True:
             bot.send_message(chat_id=update.message.chat_id, text='小波('+ myredis.get('XB_LAST_LOGIN_ID').decode('utf-8')+')当前在线。\n在线开始时间：'+myredis.get('XB_LAST_LOGIN_TIME').decode('utf-8'))
-        else:
-            bot.send_message(chat_id=update.message.chat_id, text='小波当前不在线')
+        elif chk_xiaobo_sts_by_ps() == False:
+            bot.send_message(chat_id=update.message.chat_id, text='小波当前不在线[ERRCODE:NO_PSAUX_STS]')
+        elif chk_xiaobo_sts_by_redis() == False:
+            bot.send_message(chat_id=update.message.chat_id, text='小波当前不在线[ERRCODE:NO_REDIS_STS]')
     else:
         bot.send_message(chat_id=update.message.chat_id, text=ERR_NO_PERMISSION)
 
@@ -122,27 +129,27 @@ class myThread1(threading.Thread):
         logout = 0
         login  = 0
         while True:
-            pic_exist = os.path.exists(xiaobo_url)
-            if pic_exist == True and alert == False or chk_xiaobo_sts_by_ps() == False and chk_xiaobo_sts_by_redis == True:
-                myredis.set('XB_STS', False)
-                logout = datetime.datetime.now()
-                online_status='小波已掉线！\n掉线时间: '+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-                logging.info(online_status)
-                for uid in userid:
-                    bot.send_message(chat_id=uid, text=online_status)
-                bot.send_message(chat_id=rootid, text=online_status)
+            if chk_xiaobo_sts() == False:
+                if alert == False:
+                    logout = datetime.datetime.now()
+                    online_status='小波已掉线！\n掉线时间: '+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                    logging.info(online_status)
+                    for uid in userid:
+                        bot.send_message(chat_id=uid, text=online_status)
+                    bot.send_message(chat_id=rootid, text=online_status)
                 alert = True
-            elif pic_exist == False and alert == True and chk_xiaobo_sts_by_redis() == True:
-                login = datetime.datetime.now()
-                logout_duration = (login - logout).seconds
-                logout_sec = str(logout_duration % 60)
-                logout_min = str(int(logout_duration / 60) % 60)
-                logout_hour   = str(int(logout_duration / 3600))
-                online_status='小波已恢复上线\n上线时间: '+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+'\n本次掉线: '+logout_hour+'小时'+logout_min+'分'+logout_sec+'秒'
-                logging.info(online_status)
-                for uid in userid:
-                    bot.send_message(chat_id=uid, text=online_status)
-                bot.send_message(chat_id=rootid, text=online_status)
+            else:
+                if alert == True:
+                    login = datetime.datetime.now()
+                    logout_duration = (login - logout).seconds
+                    logout_sec = str(logout_duration % 60)
+                    logout_min = str(int(logout_duration / 60) % 60)
+                    logout_hour   = str(int(logout_duration / 3600))
+                    online_status='小波已恢复上线\n上线时间: '+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+'\n本次掉线: '+logout_hour+'小时'+logout_min+'分'+logout_sec+'秒'
+                    logging.info(online_status)
+                    for uid in userid:
+                        bot.send_message(chat_id=uid, text=online_status)
+                    bot.send_message(chat_id=rootid, text=online_status)
                 alert = False
             sleep(5)
 
