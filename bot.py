@@ -47,6 +47,7 @@ def chk_xiaobo_sts():
 
 def xb(bot, update):
     global myredis
+    chk_xiaobo_sts_by_ps()
     logging.info(str(update.message.chat_id) + " send /xb")
     if user_auth(update.message.chat_id):
         os.system('rm '+xiaobo_url)
