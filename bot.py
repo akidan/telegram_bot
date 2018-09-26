@@ -117,7 +117,7 @@ def su(bot, update, args):
 
 def n(bot, update, args):
     logging.info(str(update.message.chat_id) + " send /n " + ' '.join(args))
-    if update.message.chat_id == str(rootid):
+    if str(update.message.chat_id) == str(rootid):
         if len(args) > 0 and len(args[0]) > 0:
             for uid in userid:
                 bot.send_message(chat_id=rootid, text=str(args[0]))
