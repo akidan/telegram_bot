@@ -115,6 +115,16 @@ def su(bot, update, args):
         bot.send_message(chat_id=rootid, text="用户"+str(update.message.chat_id)+"尝试获取系统通知权限失败！" + ' '.join(args))
         bot.send_message(chat_id=update.message.chat_id, text="密码错误，无法系统通知权限！")
 
+def n(bot, update, args):
+    logging.info(str(update.message.chat_id) + " send /n " + ' '.join(args))
+    if update.message.chat_id == str(rootid):
+    if len(args) > 0 and len(args[0]) > 0:
+        for uid in userid
+            bot.send_message(chat_id=rootid, text=str(args[0]))
+        bot.send_message(chat_id=rootid, text="已经向所有管理员群发系统消息：\n"+str(args[0]))
+    else:
+        bot.send_message(chat_id=update.message.chat_id, text=ERR_NO_PERMISSION)
+
 def show_help(bot, update):
     logging.info(str(update.message.chat_id) + " " + update.message.text)
     bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/xb - 重启小波\n/qr - 发送小波的二维码\n/sts - 查看当前小波运行状态\n/su - 管理员指令\ncc - [慎用]清除小波的缓存")
@@ -166,6 +176,7 @@ if __name__ == '__main__':
     sts_handler = CommandHandler('sts', sts)
     cc_handler = CommandHandler('cc', cc)
     su_handler = CommandHandler('su', su, pass_args=True)
+    n_handler = CommandHandler('n', n, pass_args=True)
     help_handler = MessageHandler(Filters.text, show_help)
 
     dispatcher.add_handler(xb_handler)
@@ -173,6 +184,7 @@ if __name__ == '__main__':
     dispatcher.add_handler(sts_handler)
     dispatcher.add_handler(cc_handler)
     dispatcher.add_handler(su_handler)
+    dispatcher.add_handler(n_handler)
     dispatcher.add_handler(help_handler)
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
