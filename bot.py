@@ -119,7 +119,7 @@ def n(bot, update, args):
     logging.info(str(update.message.chat_id) + " send /n " + ' '.join(args))
     if update.message.chat_id == str(rootid):
         if len(args) > 0 and len(args[0]) > 0:
-            for uid in userid
+            for uid in userid:
                 bot.send_message(chat_id=rootid, text=str(args[0]))
             bot.send_message(chat_id=rootid, text="已经向所有管理员群发系统消息：\n"+str(args[0]))
         else:
