@@ -118,16 +118,18 @@ def su(bot, update, args):
 def n(bot, update, args):
     logging.info(str(update.message.chat_id) + " send /n " + ' '.join(args))
     if update.message.chat_id == str(rootid):
-    if len(args) > 0 and len(args[0]) > 0:
-        for uid in userid
-            bot.send_message(chat_id=rootid, text=str(args[0]))
-        bot.send_message(chat_id=rootid, text="已经向所有管理员群发系统消息：\n"+str(args[0]))
+        if len(args) > 0 and len(args[0]) > 0:
+            for uid in userid
+                bot.send_message(chat_id=rootid, text=str(args[0]))
+            bot.send_message(chat_id=rootid, text="已经向所有管理员群发系统消息：\n"+str(args[0]))
+        else:
+            bot.send_message(chat_id=update.message.chat_id, text='群发消息格式不正确！')
     else:
         bot.send_message(chat_id=update.message.chat_id, text=ERR_NO_PERMISSION)
 
 def show_help(bot, update):
     logging.info(str(update.message.chat_id) + " " + update.message.text)
-    bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/xb - 重启小波\n/qr - 发送小波的二维码\n/sts - 查看当前小波运行状态\n/su - 管理员指令\ncc - [慎用]清除小波的缓存")
+    bot.send_message(chat_id=update.message.chat_id, text="命令一览：\n/xb - 重启小波\n/qr - 发送小波的二维码\n/sts - 查看当前小波运行状态\n/su - 管理员指令\nn - 管理员群发\ncc - [慎用]清除小波的缓存")
 
 #qq online monitoring bot
 class myThread1(threading.Thread):
