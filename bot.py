@@ -168,7 +168,7 @@ class myThread1(threading.Thread):
             #read xb fq from redis
             new_fq = myredis.get('XB_REPLY_FREQUENCY').decode('utf-8')
             if fq != 0 and fq != new_fq:
-                bot.send_message(chat_id=root, text='小波随机吐槽频率改为 '+ new_fq +' %')
+                bot.send_message(chat_id=rootid, text='小波随机吐槽频率改为 '+ new_fq +' %')
             fq = new_fq
             sleep(5)
 
