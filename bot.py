@@ -129,6 +129,7 @@ class myThread1(threading.Thread):
         alert = False
         logout = 0
         login  = 0
+        fq = 0
         while True:
             pic_exist = os.path.exists(xiaobo_url)
             if pic_exist == True and alert == False:
@@ -151,6 +152,12 @@ class myThread1(threading.Thread):
                     bot.send_message(chat_id=uid, text=online_status)
                 bot.send_message(chat_id=rootid, text=online_status)
                 alert = False
+
+            #read xb fq from redis
+            new_fq = myredis.get('XB_REPLY_FREQUENCY').decode('utf-8')
+            if fq != 0 and fq != new_fq:
+                bot.send_message(chat_id=root, text='小波随机吐槽频率改为 '+ new_fq +' %')
+            fq = new_fq
             sleep(5)
 
 if __name__ == '__main__':
